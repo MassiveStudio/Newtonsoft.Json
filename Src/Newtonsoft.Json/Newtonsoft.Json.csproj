@@ -32,11 +32,12 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <CodeAnalysisRuleset>Newtonsoft.Json.ruleset</CodeAnalysisRuleset>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="**\*.orig" />
     <None Include="..\..\LICENSE.md" Pack="true" PackagePath="LICENSE.md" />
-    <None Include="$(PackageIconFullPath)" Pack="true" PackagePath="\"/>
+    <None Include="$(PackageIconFullPath)" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="$(MicrosoftCodeAnalysisNetAnalyzersPackageVersion)" PrivateAssets="All" />

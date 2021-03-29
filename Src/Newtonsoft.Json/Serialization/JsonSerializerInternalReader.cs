@@ -52,6 +52,8 @@ namespace Newtonsoft.Json.Serialization
 {
     internal class JsonSerializerInternalReader : JsonSerializerInternalBase
     {
+        public List<string> TypeCache = new List<string>();
+
         internal enum PropertyPresence
         {
             None = 0,
@@ -743,6 +745,32 @@ namespace Newtonsoft.Json.Serialization
                             string qualifiedTypeName = reader.Value!.ToString();
 
                             ResolveTypeName(reader, ref objectType, ref contract, member, containerContract, containerMember, qualifiedTypeName);
+
+                            reader.ReadAndAssert();
+
+                            metadataProperty = true;
+                        }
+                        else if (string.Equals(propertyName, JsonTypeReflector.TypeListPropertyName, StringComparison.Ordinal))
+                        {
+                            reader.ReadAndAssert();
+                            object? list = CreateList(reader, objectType, contract, member, existingValue, id);
+                            if (list != null)
+                            {
+                                JArray arr = (JArray)list;
+                                TypeCache = arr.ToObject<List<string>>();
+                            }
+                            reader.ReadAndAssert();
+
+                            metadataProperty = true;
+                            //return true;
+                        }
+                        else if (string.Equals(propertyName, JsonTypeReflector.TypeRefPropertyName, StringComparison.Ordinal))
+                        {
+                            reader.ReadAndAssert();
+                            Type t = reader.Value.GetType();
+                            int typeID  =(int) (Int64)reader.Value;
+                            
+                            ResolveTypeName(reader, ref objectType, ref contract, member, containerContract, containerMember, TypeCache[typeID]);
 
                             reader.ReadAndAssert();
 

@@ -1041,9 +1041,9 @@ namespace Newtonsoft.Json
         /// This parameter is used when <see cref="JsonSerializer.TypeNameHandling"/> is <see cref="Json.TypeNameHandling.Auto"/> to write out the type name if the type of the value does not match.
         /// Specifying the type is optional.
         /// </param>
-        public void Serialize(JsonWriter jsonWriter, object? value, Type? objectType)
+        public void Serialize(JsonWriter jsonWriter, object? value, Type? objectType, Type[] Cache=null)
         {
-            SerializeInternal(jsonWriter, value, objectType);
+            SerializeInternal(jsonWriter, value, objectType, Cache);
         }
 
         /// <summary>
@@ -1068,9 +1068,9 @@ namespace Newtonsoft.Json
         /// </summary>
         /// <param name="jsonWriter">The <see cref="JsonWriter"/> used to write the JSON structure.</param>
         /// <param name="value">The <see cref="Object"/> to serialize.</param>
-        public void Serialize(JsonWriter jsonWriter, object? value)
+        public void Serialize(JsonWriter jsonWriter, object? value, Type[] Cache=null)
         {
-            SerializeInternal(jsonWriter, value, null);
+            SerializeInternal(jsonWriter, value, null, Cache);
         }
 
         private TraceJsonReader CreateTraceJsonReader(JsonReader reader)
@@ -1084,7 +1084,7 @@ namespace Newtonsoft.Json
             return traceReader;
         }
 
-        internal virtual void SerializeInternal(JsonWriter jsonWriter, object? value, Type? objectType)
+        internal virtual void SerializeInternal(JsonWriter jsonWriter, object? value, Type? objectType, Type[] Cache=null)
         {
             ValidationUtils.ArgumentNotNull(jsonWriter, nameof(jsonWriter));
 
@@ -1143,6 +1143,10 @@ namespace Newtonsoft.Json
                 : null;
 
             JsonSerializerInternalWriter serializerWriter = new JsonSerializerInternalWriter(this);
+
+            if(Cache!=null)
+                serializerWriter.AddTypes(Cache);
+
             serializerWriter.Serialize(traceJsonWriter ?? jsonWriter, value, objectType);
 
             if (traceJsonWriter != null)

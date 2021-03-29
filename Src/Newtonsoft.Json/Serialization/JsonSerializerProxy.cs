@@ -274,7 +274,7 @@ namespace Newtonsoft.Json.Serialization
             }
         }
 
-        internal override void SerializeInternal(JsonWriter jsonWriter, object? value, Type? rootType)
+        internal override void SerializeInternal(JsonWriter jsonWriter, object? value, Type? rootType, Type[] Cache=null)
         {
             if (_serializerWriter != null)
             {

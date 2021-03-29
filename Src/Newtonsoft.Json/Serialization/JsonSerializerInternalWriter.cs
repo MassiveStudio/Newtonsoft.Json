@@ -53,6 +53,16 @@ namespace Newtonsoft.Json.Serialization
         private int _rootLevel;
         private readonly List<object> _serializeStack = new List<object>();
 
+
+        public Dictionary<Type, int> TypeCache = new Dictionary<Type, int>();
+        public bool firstObject = true;
+        public void AddTypes(Type[] types)
+        {
+            for (int i = 0; i < types.Length; i ++)
+                TypeCache.Add(types[i], i);
+        }
+
+
         public JsonSerializerInternalWriter(JsonSerializer serializer)
             : base(serializer)
         {
@@ -627,8 +637,28 @@ namespace Newtonsoft.Json.Serialization
                 TraceWriter.Trace(TraceLevel.Verbose, JsonPosition.FormatMessage(null, writer.Path, "Writing type name '{0}' for {1}.".FormatWith(CultureInfo.InvariantCulture, typeName, type)), null);
             }
 
-            writer.WritePropertyName(JsonTypeReflector.TypePropertyName, false);
-            writer.WriteValue(typeName);
+            if (firstObject)//Write Type Header
+            {
+                writer.WritePropertyName(JsonTypeReflector.TypeListPropertyName, false);
+                writer.WriteStartArray();
+                foreach(var a in TypeCache)
+                {
+                    writer.WriteValue(ReflectionUtils.GetTypeName(a.Key, Serializer._typeNameAssemblyFormatHandling, Serializer._serializationBinder));
+                }
+                writer.WriteEndArray();
+                firstObject = false;
+            }
+
+            if (TypeCache.TryGetValue(type, out int id))
+            {
+                writer.WritePropertyName(JsonTypeReflector.TypeRefPropertyName, false);
+                writer.WriteValue(id);
+            }
+            else
+            {
+                writer.WritePropertyName(JsonTypeReflector.TypePropertyName, false);
+                writer.WriteValue(typeName);
+            }
         }
 
         private bool HasFlag(DefaultValueHandling value, DefaultValueHandling flag)
